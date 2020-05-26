@@ -33,8 +33,6 @@ public class DataServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     quotes = new ArrayList<>();
     quotes.add("beep boop - ben lin");
-    quotes.add("They told me computers could only do arithmetic -Grace Hopper. I told them I cannot do arithmetic - Ben Lin");
-    quotes.add("hydrate or diedrate - Ben Lin");
 
     // Convert the quotes to JSON using Gson library
     String json = new Gson().toJson(quotes);
@@ -45,8 +43,24 @@ public class DataServlet extends HttpServlet {
     
   }
 
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  
+    // Get the input from the form and add it to json on /data
+    String quoteSubmission = getQuoteSubmission(request);
+    quotes.add(quoteSubmission);
+    doGet(request, response);
+
+    // Redirect back to the HTML page.
+    response.sendRedirect("/index.html");
+  }
+
+  private String getQuoteSubmission(HttpServletRequest request) {
+    // Get the input from the form.
+    String quote = request.getParameter("quote-submission");
+    String author = request.getParameter("author");
+
+    return (quote + " - " + author);
+  }
 
 }
-
-
-

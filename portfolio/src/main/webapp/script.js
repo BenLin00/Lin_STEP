@@ -27,14 +27,6 @@ function addRandomGreeting() {
   greetingContainer.innerText = greeting;
 }
 
-//deprecated
-function getQuoteOld() {
-  fetch('/data').then(response => response.text()).then((quote) => {
-    document.getElementById('quote-container').innerText = quote;
-  });
-  console.log(response)
-  console.log(quote)
-}
 
 function getQuote() {
     fetch('/data').then(response => response.json()).then((quotes) => {
