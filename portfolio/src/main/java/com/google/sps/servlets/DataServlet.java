@@ -31,9 +31,11 @@ public class DataServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    quotes = new ArrayList<>();
-    quotes.add("beep boop - ben lin");
-
+    if (quotes == null) {
+        quotes = new ArrayList<>();
+        quotes.add("Beep Boop - Ben Lin");
+    }
+    
     // Convert the quotes to JSON using Gson library
     String json = new Gson().toJson(quotes);
 
@@ -49,7 +51,7 @@ public class DataServlet extends HttpServlet {
     // Get the input from the form and add it to json on /data
     String quoteSubmission = getQuoteSubmission(request);
     quotes.add(quoteSubmission);
-    doGet(request, response);
+    // 
 
     // Redirect back to the HTML page.
     response.sendRedirect("/index.html");
