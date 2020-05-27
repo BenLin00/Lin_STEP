@@ -51,7 +51,7 @@ public class DataServlet extends HttpServlet {
     // Get the input from the form and add it to json on /data
     String quoteSubmission = getQuoteSubmission(request);
     quotes.add(quoteSubmission);
-    // 
+    // doGet seems to automatically make added submissions to json format. I'm not sure why.
 
     // Redirect back to the HTML page.
     response.sendRedirect("/index.html");
