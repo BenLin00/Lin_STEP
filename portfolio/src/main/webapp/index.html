@@ -39,23 +39,17 @@
 
     <!-- quote submission form -->
             <form action="/data" method="POST">
-            Submit a quote you want to have pop up!
+            Leave me a comment!
             <br>
     
-            <label for="quote-submission">Quote:</label><br>
-            <input type="text" id="quote-submission" name="quote-submission" value="(ie: to be or not to be)"><br>
+            <input type="text" id="comment" name="comment"><br><br>
     
-            <label for="author">Author Name:</label><br>
-            <input type="text" id="author" name="author" value="(ie: Hamlet)"><br><br>
-    
-            <input type="submit" value="Submit">
-            <input type="reset">
+            <input onclick="getComment()" type="submit" value="Submit">
             </form>
 
     <!-- show quote button -->
             <br> <br>
-            <button onclick="getQuote()">Fetch a quote!</button>
-            <div id="quote-container"></div>
+            <div id="comment-container"></div>
         
 
         </div>

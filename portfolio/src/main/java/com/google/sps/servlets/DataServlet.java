@@ -22,6 +22,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
@@ -51,6 +54,12 @@ public class DataServlet extends HttpServlet {
     // Get the input from the form and add it to json on /data
     String quoteSubmission = getQuoteSubmission(request);
     quotes.add(quoteSubmission);
+
+    Entity quoteEntity = new Entity("quotes");
+    quoteEntity.setProperty("quote", quoteSubmission);
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    datastore.put(quoteEntity);
 
     // Redirect back to the HTML page.
     response.sendRedirect("/index.html");
