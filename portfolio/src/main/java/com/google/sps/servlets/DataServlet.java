@@ -30,17 +30,17 @@ import com.google.appengine.api.datastore.Entity;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
   
-  private ArrayList<String> quotes;
+  private ArrayList<String> comments;
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    if (quotes == null) {
-        quotes = new ArrayList<>();
-        quotes.add("Beep Boop - Ben Lin");
+    if (comments == null) {
+        comments = new ArrayList<>();
+        comments.add("Beep Boop - Ben Lin");
     }
     
     // Convert the quotes to JSON using Gson library
-    String json = new Gson().toJson(quotes);
+    String json = new Gson().toJson(comments);
 
     // Send the JSON as the response
     response.setContentType("application/json;");
@@ -52,25 +52,11 @@ public class DataServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
   
     // Get the input from the form and add it to json on /data
-    String quoteSubmission = getQuoteSubmission(request);
-    quotes.add(quoteSubmission);
-
-    Entity quoteEntity = new Entity("quotes");
-    quoteEntity.setProperty("quote", quoteSubmission);
-
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    datastore.put(quoteEntity);
+    String commentSubmission = request.getParameter("comment-submission");
+    comments.add(commentSubmission);
 
     // Redirect back to the HTML page.
     response.sendRedirect("/index.html");
-  }
-
-  private String getQuoteSubmission(HttpServletRequest request) {
-    // Get the input from the form.
-    String quote = request.getParameter("quote-submission");
-    String author = request.getParameter("author");
-
-    return (quote + " - " + author);
   }
 
 }

@@ -28,10 +28,10 @@ function addRandomGreeting() {
 }
 
 
-function getQuote() {
+function showComments() {
     fetch('/data').then(response => response.json()).then((quotes) => {
         // where the quote will go
-        quotesListElem = document.getElementById('quote-container');
+        quotesListElem = document.getElementById('comments-container');
 
         //pick random quote
         const quote = quotes[Math.floor(Math.random() * quotes.length)];
