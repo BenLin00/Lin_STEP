@@ -29,14 +29,22 @@ function addRandomGreeting() {
 
 
 function showComments() {
-    fetch('/data').then(response => response.json()).then((quotes) => {
-        // where the quote will go
-        quotesListElem = document.getElementById('comments-container');
+    fetch('/data').then(response => response.json()).then((commentsJson) => {
+     
+        // unordered list
+        var ul = document.createElement('ul');
 
-        //pick random quote
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        // where comments go
+        document.getElementById('comments-container').appendChild(ul);
 
-        // set the quote onto the page
-        quotesListElem.innerHTML = quote;
+        // iterate through json object and make into html list
+        for (var key in commentsJson) {
+            let li = document.createElement('li');
+            li.innerHTML = commentsJson[key];
+            ul.appendChild(li);
+        }
+
+        // bug: currently appends all comments each time "show comments" button is clicked
+
     });
 }
