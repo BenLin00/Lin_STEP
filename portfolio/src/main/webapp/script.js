@@ -43,8 +43,23 @@ function showComments() {
             li.innerHTML = commentsJson[key];
             ul.appendChild(li);
         }
-
-        // bug: currently appends all comments each time "show comments" button is clicked
-
+        // BUG: currently appends all comments each time "show comments" button is clicked
     });
+}
+
+function loginButton() {
+    logLink = fetch('/login');
+    
+    // make login link fetch-able
+
+    var button = document.getElementById("login-button");
+
+    // window.location.href = insert Link Here;
+
+
+    // if logged in, 
+        // button.innerHTML="logout"
+    // else 
+    button.innerHTML="login";
+
 }

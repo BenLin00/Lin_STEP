@@ -42,9 +42,6 @@ public class DataServlet extends HttpServlet {
     
     UserService userService = UserServiceFactory.getUserService();
 
-    // Convert the quotes to JSON using Gson library
-    // String json = new Gson().toJson(comments);
-
     // Send the JSON as the response
     response.setContentType("application/json;");
     
