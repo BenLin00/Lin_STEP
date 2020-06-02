@@ -25,27 +25,44 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
   
-  private ArrayList<String> comments;
+  private ArrayList<String> comments = new ArrayList<>(); 
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    if (comments == null) {
-        comments = new ArrayList<>();
-        comments.add("Beep Boop - Ben Lin");
-    }
     
+    UserService userService = UserServiceFactory.getUserService();
+
     // Convert the quotes to JSON using Gson library
-    String json = new Gson().toJson(comments);
+    // String json = new Gson().toJson(comments);
 
     // Send the JSON as the response
     response.setContentType("application/json;");
-    response.getWriter().println(json);
     
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query("Message").addSort("timestamp", SortDirection.DESCENDING);
+    PreparedQuery results = datastore.prepare(query);
+
+    ArrayList<String> commentsPopulate = new ArrayList<>();
+
+    for (Entity entity : results.asIterable()) {
+      String text = (String) entity.getProperty("text");
+      String email = (String) entity.getProperty("email");
+      commentsPopulate.add(email + ": " + text);
+    }
+
+    String json = new Gson().toJson(commentsPopulate);
+    response.getWriter().println(json);
+
   }
 
   @Override
@@ -55,7 +72,25 @@ public class DataServlet extends HttpServlet {
     String commentSubmission = request.getParameter("comment-submission");
     comments.add(commentSubmission);
 
-    // Redirect back to the HTML page.
+
+    UserService userService = UserServiceFactory.getUserService();
+
+    // Only logged-in users can post messages
+    if (!userService.isUserLoggedIn()) {
+      response.sendRedirect("/index.html");
+      return;
+    }
+
+    String text = request.getParameter("comment-submission");
+    String email = userService.getCurrentUser().getEmail();
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Entity messageEntity = new Entity("Message");
+    messageEntity.setProperty("text", text);
+    messageEntity.setProperty("email", email);
+    messageEntity.setProperty("timestamp", System.currentTimeMillis());
+    datastore.put(messageEntity);
+
     response.sendRedirect("/index.html");
   }
 
