@@ -48,14 +48,16 @@ function showComments() {
 }
 
 function loginButton() {
-    logLink = fetch('/login').text();
-    var button = document.getElementById("login-button");
+    fetch('/login').then(response => response.json()).then(data => {
+        // redirect to login/logout page
+        window.location.replace(data);
+    });
+    var loginButton = document.getElementById("login-button");
+    var logoutButton = document.getElementById("logout-button");
 
     // if logged in, 
         // button.innerHTML="logout"
     // else 
-    button.innerHTML="loginn";
-
-    // also need to make the user login/out when function is called
+    button.value="loglog";
 
 }

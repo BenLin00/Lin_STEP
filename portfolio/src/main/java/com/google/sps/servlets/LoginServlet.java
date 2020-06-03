@@ -35,16 +35,15 @@ public class LoginServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    response.setContentType("html/text");
+    response.setContentType("application/json");
     String logInOutUrl;
 
     // generate login/logout url
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
-      logInOutUrl = userService.createLogoutURL("/login");
+      logInOutUrl = userService.createLogoutURL("/");
     } else {
-      logInOutUrl = userService.createLoginURL("/login");
-    //   out.println("<p>Login <a href=\"" + loginUrl + "\">here</a>.</p>");
+      logInOutUrl = userService.createLoginURL("/");
     }
 
     String json = new Gson().toJson(logInOutUrl);
