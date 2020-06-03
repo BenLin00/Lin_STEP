@@ -48,18 +48,14 @@ function showComments() {
 }
 
 function loginButton() {
-    logLink = fetch('/login');
-    
-    // make login link fetch-able
-
+    logLink = fetch('/login').text();
     var button = document.getElementById("login-button");
-
-    // window.location.href = insert Link Here;
-
 
     // if logged in, 
         // button.innerHTML="logout"
     // else 
-    button.innerHTML="login";
+    button.innerHTML="loginn";
+
+    // also need to make the user login/out when function is called
 
 }

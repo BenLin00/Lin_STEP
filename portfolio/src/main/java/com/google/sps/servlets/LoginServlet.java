@@ -28,25 +28,27 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.gson.Gson;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    response.setContentType("text/html");
-    PrintWriter out = response.getWriter();
+    response.setContentType("html/text");
+    String logInOutUrl;
 
     // generate login/logout url
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
-      String logoutUrl = userService.createLogoutURL("/login");
-      out.println(logoutUrl);
+      logInOutUrl = userService.createLogoutURL("/login");
     } else {
-      String loginUrl = userService.createLoginURL("/login");
-      out.println(loginUrl);
+      logInOutUrl = userService.createLoginURL("/login");
     //   out.println("<p>Login <a href=\"" + loginUrl + "\">here</a>.</p>");
     }
+
+    String json = new Gson().toJson(logInOutUrl);
+    response.getWriter().println(json);
 
   }
 

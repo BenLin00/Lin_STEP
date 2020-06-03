@@ -48,6 +48,8 @@ public class DataServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query("Message").addSort("timestamp", SortDirection.DESCENDING);
     PreparedQuery results = datastore.prepare(query);
+    // datastoreService.prepare(query).asList(FetchOptions.Builder.withLimit(10));
+    // add a limit
 
     ArrayList<String> commentsPopulate = new ArrayList<>();
 
