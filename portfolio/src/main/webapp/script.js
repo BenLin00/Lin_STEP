@@ -50,14 +50,23 @@ function showComments() {
 function loginButton() {
     fetch('/login').then(response => response.json()).then(data => {
         // redirect to login/logout page
+        console.log(data);
         window.location.replace(data);
     });
+
+}
+
+// call onload
+function hideLoginButton() {
     var loginButton = document.getElementById("login-button");
     var logoutButton = document.getElementById("logout-button");
-
-    // if logged in, 
-        // button.innerHTML="logout"
-    // else 
-    button.value="loglog";
+// none == hide
+    if (/*logged in */false) {
+        loginButton.style.display = "inline";
+        logoutButton.style.display = "none";
+    } else {
+        logoutButton.style.display = "inline";
+        loginButton.style.display = "none";
+  }
 
 }
