@@ -37,33 +37,28 @@
 <!-- right column with the quote bank and random selector -->
         <div class="column right">
 
-    <!-- quote submission form -->
-
+    <!-- comment submission form -->
             <form action="/data" method="POST">
             Leave me a comment!~
             <br>
-    
             <input type="text" id="comment-submission" name="comment-submission" value="(ie: Hello!)" onload="login()"><br><br>
-    
             <input type="submit" value="Submit">
             </form>
 
-    <!-- show quote button -->
-            <br> <br>
+    <!-- login button -->
+            <br> 
+            <button id="login-button" onclick="loginButton()">login</button>
+            <button id="logout-button" onclick="loginButton()">logout</button>
+            
+    <!-- show comments button -->
+            <br>
             <button onclick="showComments()">Show Comments</button>
             <div id="comments-container"></div>
-
-<!-- TODO -->
-<!-- TODO: buttons do the same thing. show the correct button according to if the user is login/logout -->
-                <button id="login-button" onclick="loginButton()">login</button>
-                <br>
-                <button id="logout-button" onclick="loginButton()">logout</button>
         
+    <!-- close right column -->
         </div>
-
 <!-- close row -->
       </div>
- 
 
  <!-- just a meme at the bottom of the page -->
       <div class=”row”>

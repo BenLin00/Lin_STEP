@@ -40,8 +40,6 @@ public class DataServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     
-    UserService userService = UserServiceFactory.getUserService();
-
     // Send the JSON as the response
     response.setContentType("application/json;");
     
@@ -51,7 +49,7 @@ public class DataServlet extends HttpServlet {
     // datastoreService.prepare(query).asList(FetchOptions.Builder.withLimit(10));
     // add a limit
 
-    ArrayList<String> commentsPopulate = new ArrayList<>();
+    List<String> commentsPopulate = new ArrayList<>();
 
     for (Entity entity : results.asIterable()) {
       String text = (String) entity.getProperty("text");
@@ -70,7 +68,6 @@ public class DataServlet extends HttpServlet {
     // Get the input from the form and add it to json on /data
     String commentSubmission = request.getParameter("comment-submission");
     comments.add(commentSubmission);
-
 
     UserService userService = UserServiceFactory.getUserService();
 
