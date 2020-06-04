@@ -14,12 +14,6 @@
 
 package com.google.sps.servlets;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import java.io.IOException;
@@ -38,10 +32,6 @@ public class LoginServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     response.setContentType("application/json");
-    // struggling a lot to create custom jsons in java so I'm using ArrayList
-    // ArrayList<String> loginData = new ArrayList<>();
-    // can I append logInOutUrl and loginStatus to arraylist after initializing but before declaring? 
-    // in java, strings are nonprimitive and immutable, so does the arraylist hold mutable pointers instead?
     String logInOutUrl;
     int loginStatus;
 
@@ -58,23 +48,11 @@ public class LoginServlet extends HttpServlet {
       loginStatus = 0;
     }
 
-    // loginData.add(loginStatus);
-    // loginData.add(logInOutUrl);
-    // remember to lookup line 40 & 41
-    // JsonObject loginDataJson = new JSONObject();
+    // add status and url to hashmap
+    loginDataMap.put("loginStatus", loginStatus);
+    loginDataMap.put("logInOutUrl", logInOutUrl);
 
-    
-
-
- loginDataMap.put("loginStatus", loginStatus);
- loginDataMap.put("logInOutUrl", logInOutUrl);
- String loginDataJson = gsonBuilder.toJson(loginDataMap);
- 
-
-
-
-// String loginDataJson = new Gson().toJson(loginData);
+    String loginDataJson = gsonBuilder.toJson(loginDataMap);
     response.getWriter().println(loginDataJson);
-
   }
 }
