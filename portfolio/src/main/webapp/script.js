@@ -47,26 +47,31 @@ function showComments() {
     });
 }
 
+// redirect page to login upon "login/out" button click
 function loginButton() {
     fetch('/login').then(response => response.json()).then(data => {
-        // redirect to login/logout page
-        console.log(data);
-        // window.location.replace(data);
+        window.location.replace(data.logInOutUrl);
     });
 
+    hideLoginButton(); // this function call is redundant because line 53 triggers hideLoginButton() onload
 }
 
-// call onload
+    // hide either logIn/logOut button according to fetched status
 function hideLoginButton() {
     var loginButton = document.getElementById("login-button");
     var logoutButton = document.getElementById("logout-button");
-// none == hide
-    if (/*logged in */false) {
-        loginButton.style.display = "inline";
-        logoutButton.style.display = "none";
-    } else {
-        logoutButton.style.display = "inline";
-        loginButton.style.display = "none";
-  }
+
+    // fetch and hide/show a button. none == hide
+    fetch('/login').then(response => response.json()).then(data => {
+        if (data.loginStatus == 0) {
+            loginButton.style.display = "inline";
+            logoutButton.style.display = "none";
+        } else {
+            logoutButton.style.display = "inline";
+            loginButton.style.display = "none";
+        }
+    });
+
+    
 
 }
