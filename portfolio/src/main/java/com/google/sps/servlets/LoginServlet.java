@@ -28,8 +28,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.gson.Gson;
-import java.util.ArrayList;
+import com.google.gson.Gson; 
+import com.google.gson.GsonBuilder;  
+import java.util.HashMap;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -37,26 +38,42 @@ public class LoginServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     response.setContentType("application/json");
-    ArrayList<String> loginData = new ArrayList<>();
+    // struggling a lot to create custom jsons in java so I'm using ArrayList
+    // ArrayList<String> loginData = new ArrayList<>();
     // can I append logInOutUrl and loginStatus to arraylist after initializing but before declaring? 
     // in java, strings are nonprimitive and immutable, so does the arraylist hold mutable pointers instead?
     String logInOutUrl;
-    String loginStatus;
+    int loginStatus;
+
+    Gson gsonBuilder = new GsonBuilder().create();
+    HashMap loginDataMap = new HashMap();
 
     // generate login/logout url & login status as 0/1
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
       logInOutUrl = userService.createLogoutURL("/");
-      loginStatus = "1";
+      loginStatus = 1;
     } else {
       logInOutUrl = userService.createLoginURL("/");
-      loginStatus = "0";
+      loginStatus = 0;
     }
 
-    loginData.add(loginStatus);
-    loginData.add(logInOutUrl);
+    // loginData.add(loginStatus);
+    // loginData.add(logInOutUrl);
     // remember to lookup line 40 & 41
-    String loginDataJson = new Gson().toJson(loginData);
+    // JsonObject loginDataJson = new JSONObject();
+
+    
+
+
+ loginDataMap.put("loginStatus", loginStatus);
+ loginDataMap.put("logInOutUrl", logInOutUrl);
+ String loginDataJson = gsonBuilder.toJson(loginDataMap);
+ 
+
+
+
+// String loginDataJson = new Gson().toJson(loginData);
     response.getWriter().println(loginDataJson);
 
   }

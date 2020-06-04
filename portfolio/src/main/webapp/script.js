@@ -51,7 +51,7 @@ function loginButton() {
     fetch('/login').then(response => response.json()).then(data => {
         // redirect to login/logout page
         console.log(data);
-        window.location.replace(data);
+        // window.location.replace(data);
     });
 
 }
