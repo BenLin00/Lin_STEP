@@ -48,7 +48,7 @@ function showComments() {
 }
 
 // redirect page to login upon "login/out" button click
-function loginButton() {
+function loginUser() {
     fetch('/login').then(response => response.json()).then(data => {
         window.location.replace(data.logInOutUrl);
     });
@@ -74,7 +74,5 @@ function hideLoginButton() {
             commentForm.style.display = "none";
         }
     });
-
-    
 
 }
