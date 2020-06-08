@@ -64,14 +64,14 @@ function hideLoginButton() {
 
     // fetch and hide/show a button. none == hide
     fetch('/login').then(response => response.json()).then(data => {
-        if (data.loginStatus == 0) {
-            loginButton.style.display = "inline";
-            logoutButton.style.display = "none";
-            commentForm.style.display = "none";
-        } else {
+        if (data.isLoggedIn) {
             loginButton.style.display = "none";
             logoutButton.style.display = "inline";
             commentForm.style.display = "inline";
+        } else {
+            loginButton.style.display = "inline";
+            logoutButton.style.display = "none";
+            commentForm.style.display = "none";
         }
     });
 

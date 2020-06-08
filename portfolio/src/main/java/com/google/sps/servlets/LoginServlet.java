@@ -34,24 +34,24 @@ public class LoginServlet extends HttpServlet {
     response.setContentType("application/json");
     // logInOutUrl is either the login or logout url depending on user status
     String logInOutUrl;
-    int loginStatus;
-
-    Gson gsonBuilder = new GsonBuilder().create();
-    HashMap loginDataMap = new HashMap();
+    boolean isLoggedIn;
 
     // generate login/logout url & login status as 0/1
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
       logInOutUrl = userService.createLogoutURL("/");
     //   ;StartPollingForCompletion();return false;">
-      loginStatus = 1;
+      isLoggedIn = true;
     } else {
       logInOutUrl = userService.createLoginURL("/");
-      loginStatus = 0;
+      isLoggedIn = false;
     }
 
+    Gson gsonBuilder = new GsonBuilder().create();
+    HashMap loginDataMap = new HashMap();
+
     // add status and url to hashmap
-    loginDataMap.put("loginStatus", loginStatus);
+    loginDataMap.put("isLoggedIn", isLoggedIn);
     loginDataMap.put("logInOutUrl", logInOutUrl);
 
     String loginDataJson = gsonBuilder.toJson(loginDataMap);
