@@ -30,12 +30,13 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.appengine.api.datastore.FetchOptions;
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
   
-  private ArrayList<String> comments = new ArrayList<>(); 
+  private List<String> comments = new ArrayList<>(); 
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -45,13 +46,12 @@ public class DataServlet extends HttpServlet {
     
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query("Message").addSort("timestamp", SortDirection.DESCENDING);
-    PreparedQuery results = datastore.prepare(query);
-    // datastoreService.prepare(query).asList(FetchOptions.Builder.withLimit(10));
+    List<Entity> results = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10));
     // add a limit
 
     List<String> commentsPopulate = new ArrayList<>();
 
-    for (Entity entity : results.asIterable()) {
+    for (Entity entity : results) {
       String text = (String) entity.getProperty("text");
       String email = (String) entity.getProperty("email");
       commentsPopulate.add(email + ": " + text);

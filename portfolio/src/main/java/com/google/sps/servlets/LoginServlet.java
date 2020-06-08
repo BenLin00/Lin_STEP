@@ -32,6 +32,7 @@ public class LoginServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     response.setContentType("application/json");
+    // logInOutUrl is either the login or logout url depending on user status
     String logInOutUrl;
     int loginStatus;
 
@@ -42,6 +43,7 @@ public class LoginServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
       logInOutUrl = userService.createLogoutURL("/");
+    //   ;StartPollingForCompletion();return false;">
       loginStatus = 1;
     } else {
       logInOutUrl = userService.createLoginURL("/");

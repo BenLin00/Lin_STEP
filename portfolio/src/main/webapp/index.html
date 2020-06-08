@@ -38,9 +38,9 @@
         <div class="column right">
 
     <!-- comment submission form -->
-            <form action="/data" method="POST">
             Leave me a comment!~
             <br>
+            <form action="/data" method="POST" id="comment-form">
             <input type="text" id="comment-submission" name="comment-submission" value="(ie: Hello!)" onload="login()"><br><br>
             <input type="submit" value="Submit">
             </form>
@@ -51,7 +51,7 @@
             <button id="logout-button" onclick="loginButton()">logout</button>
             
     <!-- show comments button -->
-            <br>
+            <br> <br>
             <button onclick="showComments()">Show Comments</button>
             <div id="comments-container"></div>
         

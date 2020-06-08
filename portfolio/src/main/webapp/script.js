@@ -60,15 +60,18 @@ function loginButton() {
 function hideLoginButton() {
     var loginButton = document.getElementById("login-button");
     var logoutButton = document.getElementById("logout-button");
+    var commentForm = document.getElementById("comment-form");
 
     // fetch and hide/show a button. none == hide
     fetch('/login').then(response => response.json()).then(data => {
         if (data.loginStatus == 0) {
             loginButton.style.display = "inline";
             logoutButton.style.display = "none";
+            commentForm.style.display = "none";
         } else {
-            logoutButton.style.display = "inline";
             loginButton.style.display = "none";
+            logoutButton.style.display = "inline";
+            commentForm.style.display = "inline";
         }
     });
 
