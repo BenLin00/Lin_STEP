@@ -19,12 +19,15 @@ function initBody() {
 }
 
 function showComments() {
+    // where comments go
+    var commentsContainer = document.getElementById('comments-container');
+    commentsContainer.innerHTML = "";
+
     fetch('/data').then(response => response.json()).then((commentsJson) => {
-     
         // unordered list
         var ul = document.createElement('ul');
 
-        // where comments go
+        // add comments to container
         document.getElementById('comments-container').appendChild(ul);
 
         // iterate through json object and make into html list
@@ -43,25 +46,24 @@ function loginUser() {
         window.location.replace(data.logInOutUrl);
     });
 
-    hideLoginButton(); // this function call is redundant because line 53 triggers hideLoginButton() onload
 }
 
     // hide either logIn/logOut button according to fetched status
 function hideLoginButton() {
     var loginButton = document.getElementById("login-button");
     var logoutButton = document.getElementById("logout-button");
-    var commentForm = document.getElementById("comment-form");
+    var commentForm = document.getElementById("comment-form");    
 
     // fetch and hide/show a button. none == hide
     fetch('/login').then(response => response.json()).then(data => {
         if (data.isLoggedIn) {
-            loginButton.style.display = "none";
-            logoutButton.style.display = "inline";
-            commentForm.style.display = "inline";
+            loginButton.hidden = true;
+            logoutButton.hidden = false;
+            commentForm.hidden = false;
         } else {
-            loginButton.style.display = "inline";
-            logoutButton.style.display = "none";
-            commentForm.style.display = "none";
+            loginButton.hidden = false;
+            logoutButton.hidden = true;
+            commentForm.hidden = true;
         }
     });
 
