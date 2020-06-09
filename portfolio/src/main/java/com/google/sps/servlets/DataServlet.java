@@ -36,7 +36,7 @@ import com.google.appengine.api.datastore.FetchOptions;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
   
-  private List<String> comments = new ArrayList<>(); 
+  private final List<String> comments = new ArrayList<>(); 
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -44,11 +44,7 @@ public class DataServlet extends HttpServlet {
     // Send the JSON as the response
     response.setContentType("application/json;");
     
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Query query = new Query("Message").addSort("timestamp", SortDirection.DESCENDING);
-    List<Entity> results = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10));
-    // add a limit
-
+    List<Entity> results = queryFromDatastore(); // call helper function
     List<String> commentsPopulate = new ArrayList<>();
 
     for (Entity entity : results) {
@@ -64,8 +60,7 @@ public class DataServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-  
-    // Get the input from the form and add it to json on /data
+    
     String commentSubmission = request.getParameter("comment-submission");
     comments.add(commentSubmission);
 
@@ -88,6 +83,12 @@ public class DataServlet extends HttpServlet {
     datastore.put(messageEntity);
 
     response.sendRedirect("/index.html");
+  }
+
+  private List queryFromDatastore() {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query("Message").addSort("timestamp", SortDirection.DESCENDING);
+    return datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10));
   }
 
 }

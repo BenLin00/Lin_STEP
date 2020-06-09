@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson; 
 import com.google.gson.GsonBuilder;  
 import java.util.HashMap;
+import java.util.Map;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -40,7 +41,6 @@ public class LoginServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     if (userService.isUserLoggedIn()) {
       logInOutUrl = userService.createLogoutURL("/");
-    //   ;StartPollingForCompletion();return false;">
       isLoggedIn = true;
     } else {
       logInOutUrl = userService.createLoginURL("/");
@@ -48,9 +48,8 @@ public class LoginServlet extends HttpServlet {
     }
 
     Gson gsonBuilder = new GsonBuilder().create();
-    HashMap loginDataMap = new HashMap();
+    Map<String, Object> loginDataMap = new HashMap<>();
 
-    // add status and url to hashmap
     loginDataMap.put("isLoggedIn", isLoggedIn);
     loginDataMap.put("logInOutUrl", logInOutUrl);
 

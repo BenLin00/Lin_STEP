@@ -29,12 +29,15 @@ function addRandomGreeting() {
 
 
 function showComments() {
+    // where comments go
+    var commentsContainer = document.getElementById('comments-container');
+    commentsContainer.innerHTML = "";
+
     fetch('/data').then(response => response.json()).then((commentsJson) => {
-     
         // unordered list
         var ul = document.createElement('ul');
 
-        // where comments go
+        // add comments to container
         document.getElementById('comments-container').appendChild(ul);
 
         // iterate through json object and make into html list
@@ -53,7 +56,6 @@ function loginUser() {
         window.location.replace(data.logInOutUrl);
     });
 
-    hideLoginButton(); // this function call is redundant because line 53 triggers hideLoginButton() onload
 }
 
     // hide either logIn/logOut button according to fetched status
