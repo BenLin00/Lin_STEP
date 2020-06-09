@@ -8,7 +8,12 @@
   margin-top: 20px;
 }
 
-/* Create four equal columns that floats next to each other */
+.icons {
+    text-align: center;
+    height: 50px;
+}
+
+/* Create three equal columns that floats next to each other */
 .column {
   float: left;
   width: 33.3%;
@@ -28,7 +33,7 @@
 /* Clear floats after the columns */
 .row:after {
   content: "";
-  display: table;
+  display: table;.
   clear: both;
 }
 
