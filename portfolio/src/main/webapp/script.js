@@ -12,21 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Adds a random greeting to the page.
- */
-function addRandomGreeting() {
-  const greetings =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
-
-  // Pick a random greeting.
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-
-  // Add it to the page.
-  const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greeting;
+// initialize body
+function initBody() {
+    hideLoginButton();
+    initMap();
 }
-
 
 function showComments() {
     fetch('/data').then(response => response.json()).then((commentsJson) => {
@@ -76,3 +66,22 @@ function hideLoginButton() {
     });
 
 }
+
+// initalize map of Maryland
+function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: -34.397, lng: 76.6413},
+        zoom: 10
+    });
+
+    const umdMarker = new google.maps.Marker({
+        position: {lat: 38.9869, lng: 76.9426},
+        map: map,
+        title: 'University of Maryland'
+    });
+
+    const trexInfoWindow =
+        new google.maps.InfoWindow({content: 'I\'m a student at the University of Maryland!'});
+    trexInfoWindow.open(map, trexMarker);
+}
+
