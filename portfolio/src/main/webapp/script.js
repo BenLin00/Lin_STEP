@@ -60,18 +60,18 @@ function loginUser() {
 function hideLoginButton() {
     var loginButton = document.getElementById("login-button");
     var logoutButton = document.getElementById("logout-button");
-    var commentForm = document.getElementById("comment-form");
+    var commentForm = document.getElementById("comment-form");    
 
     // fetch and hide/show a button. none == hide
     fetch('/login').then(response => response.json()).then(data => {
         if (data.isLoggedIn) {
-            loginButton.style.display = "none";
-            logoutButton.style.display = "inline";
-            commentForm.style.display = "inline";
+            loginButton.hidden = true;
+            logoutButton.hidden = false;
+            commentForm.hidden = false;
         } else {
-            loginButton.style.display = "inline";
-            logoutButton.style.display = "none";
-            commentForm.style.display = "none";
+            loginButton.hidden = false;
+            logoutButton.hidden = true;
+            commentForm.hidden = true;
         }
     });
 
