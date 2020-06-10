@@ -12,39 +12,78 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Adds a random greeting to the page.
- */
-function addRandomGreeting() {
-  const greetings =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
-
-  // Pick a random greeting.
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-
-  // Add it to the page.
-  const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greeting;
+// initialize body
+function initBody() {
+    hideLoginButton();
+    initMap();
 }
 
-//deprecated
-function getQuoteOld() {
-  fetch('/data').then(response => response.text()).then((quote) => {
-    document.getElementById('quote-container').innerText = quote;
-  });
-  console.log(response)
-  console.log(quote)
-}
+function showComments() {
+    // where comments go
+    var commentsContainer = document.getElementById('comments-container');
+    commentsContainer.innerHTML = "";
 
-function getQuote() {
-    fetch('/data').then(response => response.json()).then((quotes) => {
-        // where the quote will go
-        quotesListElem = document.getElementById('quote-container');
+    fetch('/data').then(response => response.json()).then((commentsJson) => {
+        // unordered list
+        var ul = document.createElement('ul');
 
-        //pick random quote
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        // add comments to container
+        document.getElementById('comments-container').appendChild(ul);
 
-        // set the quote onto the page
-        quotesListElem.innerHTML = quote;
+        // iterate through json object and make into html list
+        for (var key in commentsJson) {
+            let li = document.createElement('li');
+            li.innerHTML = commentsJson[key];
+            ul.appendChild(li);
+        }
+        // BUG: currently appends all comments each time "show comments" button is clicked
     });
 }
+
+// redirect page to login upon "login/out" button click
+function loginUser() {
+    fetch('/login').then(response => response.json()).then(data => {
+        window.location.replace(data.logInOutUrl);
+    });
+
+}
+
+    // hide either logIn/logOut button according to fetched status
+function hideLoginButton() {
+    var loginButton = document.getElementById("login-button");
+    var logoutButton = document.getElementById("logout-button");
+    var commentForm = document.getElementById("comment-form");    
+
+    // fetch and hide/show a button. none == hide
+    fetch('/login').then(response => response.json()).then(data => {
+        if (data.isLoggedIn) {
+            loginButton.hidden = true;
+            logoutButton.hidden = false;
+            commentForm.hidden = false;
+        } else {
+            loginButton.hidden = false;
+            logoutButton.hidden = true;
+            commentForm.hidden = true;
+        }
+    });
+
+}
+
+// initalize map of Maryland
+function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: -34.397, lng: 76.6413},
+        zoom: 10
+    });
+
+    const umdMarker = new google.maps.Marker({
+        position: {lat: 38.9869, lng: 76.9426},
+        map: map,
+        title: 'University of Maryland'
+    });
+
+    const trexInfoWindow =
+        new google.maps.InfoWindow({content: 'I\'m a student at the University of Maryland!'});
+    trexInfoWindow.open(map, trexMarker);
+}
+

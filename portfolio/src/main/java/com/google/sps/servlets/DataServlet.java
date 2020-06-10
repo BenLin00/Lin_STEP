@@ -22,31 +22,73 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.google.appengine.api.datastore.FetchOptions;
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
   
-  private ArrayList<String> quotes;
+  private final List<String> comments = new ArrayList<>(); 
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    quotes = new ArrayList<>();
-    quotes.add("beep boop - ben lin");
-    quotes.add("They told me computers could only do arithmetic -Grace Hopper. I told them I cannot do arithmetic - Ben Lin");
-    quotes.add("hydrate or diedrate - Ben Lin");
-
-    // Convert the quotes to JSON using Gson library
-    String json = new Gson().toJson(quotes);
-
+    
     // Send the JSON as the response
     response.setContentType("application/json;");
-    response.getWriter().println(json);
     
+    List<Entity> results = queryFromDatastore(); // call helper function
+    List<String> commentsPopulate = new ArrayList<>();
+
+    for (Entity entity : results) {
+      String text = (String) entity.getProperty("text");
+      String email = (String) entity.getProperty("email");
+      commentsPopulate.add(email + ": " + text);
+    }
+
+    String json = new Gson().toJson(commentsPopulate);
+    response.getWriter().println(json);
+
   }
 
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    
+    String commentSubmission = request.getParameter("comment-submission");
+    comments.add(commentSubmission);
+
+    UserService userService = UserServiceFactory.getUserService();
+
+    // Only logged-in users can post messages
+    if (!userService.isUserLoggedIn()) {
+      response.sendRedirect("/index.html");
+      return;
+    }
+
+    String text = request.getParameter("comment-submission");
+    String email = userService.getCurrentUser().getEmail();
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Entity messageEntity = new Entity("Message");
+    messageEntity.setProperty("text", text);
+    messageEntity.setProperty("email", email);
+    messageEntity.setProperty("timestamp", System.currentTimeMillis());
+    datastore.put(messageEntity);
+
+    response.sendRedirect("/index.html");
+  }
+
+  private List queryFromDatastore() {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query("Message").addSort("timestamp", SortDirection.DESCENDING);
+    return datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10));
+  }
 
 }
-
-
-
