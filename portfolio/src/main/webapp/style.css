@@ -12,3 +12,33 @@
     text-align: center;
     height: 50px;
 }
+
+/* Create three equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 33.3%;
+  padding: 10px;
+  text-align: center;
+}
+
+.left, .right {
+  width: 25%;
+}
+
+.middle {
+  width: 40%;
+
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;.
+  clear: both;
+}
+
+.img {
+    max-height: 75%;
+    max-width: 75%;
+    object-fit: cover;
+}

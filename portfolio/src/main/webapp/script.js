@@ -27,24 +27,54 @@ function addRandomGreeting() {
   greetingContainer.innerText = greeting;
 }
 
-//deprecated
-function getQuoteOld() {
-  fetch('/data').then(response => response.text()).then((quote) => {
-    document.getElementById('quote-container').innerText = quote;
-  });
-  console.log(response)
-  console.log(quote)
+
+function showComments() {
+    // where comments go
+    var commentsContainer = document.getElementById('comments-container');
+    commentsContainer.innerHTML = "";
+
+    fetch('/data').then(response => response.json()).then((commentsJson) => {
+        // unordered list
+        var ul = document.createElement('ul');
+
+        // add comments to container
+        document.getElementById('comments-container').appendChild(ul);
+
+        // iterate through json object and make into html list
+        for (var key in commentsJson) {
+            let li = document.createElement('li');
+            li.innerHTML = commentsJson[key];
+            ul.appendChild(li);
+        }
+        // BUG: currently appends all comments each time "show comments" button is clicked
+    });
 }
 
-function getQuote() {
-    fetch('/data').then(response => response.json()).then((quotes) => {
-        // where the quote will go
-        quotesListElem = document.getElementById('quote-container');
-
-        //pick random quote
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
-
-        // set the quote onto the page
-        quotesListElem.innerHTML = quote;
+// redirect page to login upon "login/out" button click
+function loginUser() {
+    fetch('/login').then(response => response.json()).then(data => {
+        window.location.replace(data.logInOutUrl);
     });
+
+}
+
+    // hide either logIn/logOut button according to fetched status
+function hideLoginButton() {
+    var loginButton = document.getElementById("login-button");
+    var logoutButton = document.getElementById("logout-button");
+    var commentForm = document.getElementById("comment-form");    
+
+    // fetch and hide/show a button. none == hide
+    fetch('/login').then(response => response.json()).then(data => {
+        if (data.isLoggedIn) {
+            loginButton.hidden = true;
+            logoutButton.hidden = false;
+            commentForm.hidden = false;
+        } else {
+            loginButton.hidden = false;
+            logoutButton.hidden = true;
+            commentForm.hidden = true;
+        }
+    });
+
 }
