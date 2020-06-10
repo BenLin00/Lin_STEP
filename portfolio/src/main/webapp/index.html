@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
-    <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+  <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+  <script src="script.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAsA3A2DKXygMQs05-9uy7zmZ9wJ1TQIow"></script>
+
   <head>
     <meta charset="UTF-8">
     <title> Ben's Portfolio</title>
@@ -8,7 +11,7 @@
     <script src="script.js"></script>
   </head>
 
-  <body onload=hideLoginButton() style="background-image: url('/images/background.jpg');">
+  <body onload=initBody() style="background-image: url('/images/background.jpg');">
       <div class=”row”>
         <h1 class="icons">
             <a href="https://github.com/BenLin00/">
@@ -44,6 +47,11 @@
 
 <!-- right column with the quote bank and random selector -->
         <div class="column right">
+        <!-- map of Maryland -->
+            Where I'm From:
+            <div id="map"></div>
+            <button onclick="initMap()">initMap pls</button>
+            <br>
 
     <!-- comment submission form -->
             Leave me a comment!~
