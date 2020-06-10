@@ -20,7 +20,6 @@
 /* Create three equal columns that floats next to each other */
 .column {
   float: left;
-  width: 33.3%;
   padding: 10px;
   text-align: center;
 }
@@ -30,14 +29,13 @@
 }
 
 .middle {
-  width: 40%;
-
+  width: 45%;
 }
 
 /* Clear floats after the columns */
 .row:after {
   content: "";
-  display: table;.
+  display: table;
   clear: both;
 }
 
