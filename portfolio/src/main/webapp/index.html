@@ -11,7 +11,7 @@
     <script src="script.js"></script>
   </head>
 
-  <body onload=initBody() style="background-image: url('/images/background.jpg');">
+  <body onload=initBody(); style="background-image: url('/images/background.jpg');">
       <div class=”row”>
         <h1 class="icons">
             <a href="https://github.com/BenLin00/" target="_blank">
@@ -54,8 +54,8 @@
         <div class="column right">
         <!-- map of Maryland -->
             Where I'm From:
-            <div id="map"></div>
-            <button onclick="initMap()">initMap pls</button>
+            <div id="map" name="map"></div>
+            <button onclick="initMap()">createMap pls</button>
             <br>
 
     <!-- comment submission form -->
