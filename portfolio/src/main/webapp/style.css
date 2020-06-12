@@ -44,3 +44,9 @@
     max-width: 75%;
     object-fit: cover;
 }
+
+#map {
+    height: 35vh;
+    width: 20vw;
+    text-align: center;
+}

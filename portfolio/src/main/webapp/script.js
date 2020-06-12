@@ -72,12 +72,12 @@ function hideLoginButton() {
 // initalize map of Maryland
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: -34.397, lng: 76.6413},
-        zoom: 10
+        center: {lat: 39.0397, lng: -76.6413},
+        zoom: 6
     });
 
     const umdMarker = new google.maps.Marker({
-        position: {lat: 38.9869, lng: 76.9426},
+        position: {lat: 38.9869, lng: -76.9426},
         map: map,
         title: 'University of Maryland'
     });
@@ -86,4 +86,3 @@ function initMap() {
         new google.maps.InfoWindow({content: 'I\'m a student at the University of Maryland!'});
     trexInfoWindow.open(map, trexMarker);
 }
-
