@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
     // first iterate through and combine events that overlap
     // subtract combined events calendar from whole day
@@ -25,20 +26,18 @@ import java.util.HashSet;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-        Collection<TimeRange> avaliableRanges = new HashSet<TimeRange>();
-        Collection<TimeRange> tempAvaliable = new HashSet<TimeRange>(); 
+        List<TimeRange> avaliableRanges = new ArrayList<TimeRange>();
         avaliableRanges.add(TimeRange.WHOLE_DAY);
         Collection<TimeRange> bookedRanges = combinedMandatoryRanges(events, request);
 
         for (TimeRange booked : bookedRanges) {
-            for (TimeRange avaliable : avaliableRanges) {
-                if (avaliable.overlaps(booked)) {
-                    tempAvaliable = removeOverlap(avaliable, booked);
-                    removeOverlap(avaliable, booked);
-                    avaliableRanges.remove(avaliable);
-                    avaliableRanges.addAll(tempAvaliable);
-                }
-            }            
+            TimeRange lastInAvaliable = avaliableRanges.get(avaliableRanges.size()-1);
+            if (lastInAvaliable.overlaps(booked)){
+                List<TimeRange> newLastAvaliable = removeOverlap(lastInAvaliable, booked);
+                avaliableRanges.remove(lastInAvaliable);
+                avaliableRanges.addAll(newLastAvaliable);
+                Collections.sort(avaliableRanges, TimeRange.ORDER_BY_START);
+            }
         }
 
         // remove TimeRanges too small
@@ -51,8 +50,50 @@ public final class FindMeetingQuery {
         return avaliableRanges;
   }
 
-  public Collection<TimeRange> removeOverlap(TimeRange avaliable, TimeRange booked) {
-        Collection<TimeRange> cleansed = new HashSet<TimeRange>();
+// returns set of TimeRanges formed by all events that have mandatory attendees from the request with no overlap
+  public Collection<TimeRange> combinedMandatoryRanges(Collection<Event> events, MeetingRequest request) {
+        List<TimeRange> busyTimes = new ArrayList<TimeRange>();
+        for (Event event : events) {
+            if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) ) { //events with mandatory attendees only
+                busyTimes.add(event.getWhen());
+                System.out.println(event.getWhen());
+            }
+        }
+        Collections.sort(busyTimes, TimeRange.ORDER_BY_START);
+
+        List<TimeRange> combinedBusyTimes = new ArrayList<TimeRange>();
+
+        int i = 0;
+        int start = -1;
+        int end;
+        while (i < busyTimes.size()) {
+            if (start == -1) {
+                start = busyTimes.get(i).start(); // set Start of TimeRange
+            }
+            
+            if (i == busyTimes.size()-1){ // On the last TimeRange
+                end = busyTimes.get(i).end();
+                combinedBusyTimes.add(TimeRange.fromStartEnd(start, end, true));
+                break;
+            }
+
+            if (busyTimes.get(i).end() > busyTimes.get(i+1).start()){ // combine with next TimeRange
+                i++;
+                continue;
+            } else {
+                end = busyTimes.get(i).end();
+                combinedBusyTimes.add(TimeRange.fromStartEnd(start, end, true));
+                start = -1; // reset start for a new TimeRange to add
+                i++;
+            }
+        }
+
+        return combinedBusyTimes;
+  }
+
+
+  public List<TimeRange> removeOverlap(TimeRange avaliable, TimeRange booked) {
+        List<TimeRange> cleansed = new ArrayList<TimeRange>();
     // Case 1: |-a-|
     //           |-b-|
     //
@@ -61,49 +102,15 @@ public final class FindMeetingQuery {
     //
     // Case 3: |----a----|
     //            |-b-|
-        if (avaliable.contains(booked.start()) && !avaliable.contains(booked.end())) {
+        if (avaliable.contains(booked.start()) && !avaliable.contains(booked.end())) { // case 1
             cleansed.add(avaliable.fromStartEnd(avaliable.start(), booked.start(), false));
-        } else if (!avaliable.contains(booked.start()) && avaliable.contains(booked.end())) {
-            cleansed.add(TimeRange.fromStartEnd(booked.end() + 1, avaliable.end(), true)); // double check this "+ 1"
+        } else if (!avaliable.contains(booked.start()) && avaliable.contains(booked.end())) { // case 2
+            cleansed.add(TimeRange.fromStartEnd(booked.end(), avaliable.end(), false));
         } else {
             cleansed.add(TimeRange.fromStartEnd(avaliable.start(), booked.start(), false));
-            cleansed.add(TimeRange.fromStartEnd(booked.end() + 1, avaliable.end(), true)); // doublecheck the "+1"
+            cleansed.add(TimeRange.fromStartEnd(booked.end(), avaliable.end(), false));
         }
         return cleansed;
-  }
-
-
-// returns set of TimeRanges formed by all events that have mandatory attendees from the request with no overlap
-  public Collection<TimeRange> combinedMandatoryRanges(Collection<Event> events, MeetingRequest request) {
-        Collection<TimeRange> eventRanges = new HashSet<TimeRange>(); // not sure if need to declare new
-        for (Event event : events) {
-            if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) ) { //events with mandatory attendees only
-                eventRanges.add(event.getWhen());
-            }
-        }
-
-        Collection<TimeRange> combinedEvents = new HashSet<TimeRange>();
-
-        // remove overlapping events from mandatory attendees and return combined TimeRanges 
-        for (TimeRange uncombinedRange : eventRanges) {
-            for (TimeRange combinedRange : combinedEvents) {
-                if (combinedRange.overlaps(uncombinedRange)) {
-                    eventRanges.add(combineOverlappingTimeRanges(uncombinedRange, combinedRange));
-                }
-            }
-        }
-        return combinedEvents;
-  }
-
-// takes in two overlapping Time Ranges and combines them, returning one TimeRange
-  public TimeRange combineOverlappingTimeRanges(TimeRange a, TimeRange b) {
-      if (a.end() < b.start() || b.end() < a.start()){
-          throw new IllegalArgumentException("TimeRanges don't overlap! cannot combine");
-      }
-      int start = (a.start() < b.start() )? a.start() : b.start();
-      int end = (a.end() < b.end() )? b.end() : a.end();
-
-      return TimeRange.fromStartEnd(start, end, true);
   }
 
 }
