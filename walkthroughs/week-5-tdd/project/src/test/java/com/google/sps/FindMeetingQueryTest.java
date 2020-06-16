@@ -435,17 +435,7 @@ public final class FindMeetingQueryTest {
   }
 
   @Test
-  public void testCombineOverlappingTimeRanges() {
-    TimeRange a = TimeRange.fromStartEnd(TIME_0800AM, TIME_0900AM, true);
-    TimeRange b = TimeRange.fromStartEnd(TIME_0830AM, TIME_0930AM, true);
-    TimeRange actual = query.combineOverlappingTimeRanges(a, b);
-    TimeRange expected = TimeRange.fromStartEnd(TIME_0800AM, TIME_0930AM, true);
-
-    Assert.assertEquals(expected, actual);
-  }
-
-  @Test
-  public void combinedMandatoryRangesTest() {
+  public void testCombinedMandatoryRanges() {
     Collection<Event> events = Arrays.asList(
         new Event("Event 1", TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0830AM, false),
             Arrays.asList(PERSON_A)),
@@ -462,8 +452,8 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-    @Test
-  public void removeOverlapTest() {
+  @Test
+  public void testRemoveOverlap() {
     // Case 1: |-a-|
     //           |-b-|
     TimeRange a = TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0930AM, true);
