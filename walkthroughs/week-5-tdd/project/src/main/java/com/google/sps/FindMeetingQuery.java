@@ -26,65 +26,86 @@ import java.util.List;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-        List<TimeRange> avaliableRanges = new ArrayList<TimeRange>();
-        avaliableRanges.add(TimeRange.WHOLE_DAY);
+        List<TimeRange> availableRanges = new ArrayList<>();
+        availableRanges.add(TimeRange.WHOLE_DAY);
         Collection<TimeRange> bookedRanges = combinedMandatoryRanges(events, request);
 
+        /* The bookedRanges is already sorted, so iterating from the earliest bookedRange, 
+            each subsequent bookedRange will have a conflict with the latest avaliable range, as we start with the whole day */
         for (TimeRange booked : bookedRanges) {
-            TimeRange lastInAvaliable = avaliableRanges.get(avaliableRanges.size()-1);
-            if (lastInAvaliable.overlaps(booked)){
-                List<TimeRange> newLastAvaliable = removeOverlap(lastInAvaliable, booked);
-                avaliableRanges.remove(lastInAvaliable);
-                avaliableRanges.addAll(newLastAvaliable);
-                Collections.sort(avaliableRanges, TimeRange.ORDER_BY_START);
+            TimeRange lastInavailable = availableRanges.get(availableRanges.size()-1);
+            // if (lastInavailable.overlaps(booked)){ //if statement unneeded
+                List<TimeRange> newLastavailable = removeOverlap(lastInavailable, booked);
+                availableRanges.remove(lastInavailable);
+                availableRanges.addAll(newLastavailable);
+            // }
+        }
+
+        System.out.println("availableRanges:" + availableRanges);
+        System.out.println("requestduration:" + request.getDuration());
+
+
+        // remove available TimeRanges too small
+        // still broken
+        System.out.println("please enter the for loop"); 
+        for (int i = 0; i > availableRanges.size(); i++) {
+            System.out.print("for loop entered"); // this isn't printing so it must not be entering the for loop idk why
+
+            TimeRange available = availableRanges.get(i);            
+            
+            System.out.println("availableduration:" + available.duration());
+            System.out.println("requestDuration:" + request.getDuration());
+
+            if (available.duration() < request.getDuration()) {
+                availableRanges.remove(i);
+                i--;
             }
         }
 
-        // remove TimeRanges too small
-        for (TimeRange avaliable : avaliableRanges) {
-            if (avaliable.duration() < request.getDuration()) {
-                avaliableRanges.remove(avaliable);
-            }
-        }
+        // for (TimeRange available : availableRanges) {
+        //     System.out.println("availableduration:" + available.duration());
 
-        return avaliableRanges;
+        //     if (available.duration() < request.getDuration()) {
+        //         System.out.println("removing" + available);
+        //         availableRanges.remove(available);
+        //     }
+        // }
+
+        System.out.println("after the for loop");
+        
+        return availableRanges;
   }
 
-// returns set of TimeRanges formed by all events that have mandatory attendees from the request with no overlap
+/** 
+*returns set of TimeRanges formed by all events that have mandatory attendees from the request with no overlap
+*/
   public Collection<TimeRange> combinedMandatoryRanges(Collection<Event> events, MeetingRequest request) {
-        List<TimeRange> busyTimes = new ArrayList<TimeRange>();
+        List<TimeRange> busyTimes = new ArrayList<>();
         for (Event event : events) {
             if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) ) { //events with mandatory attendees only
                 busyTimes.add(event.getWhen());
-                System.out.println(event.getWhen());
             }
         }
         Collections.sort(busyTimes, TimeRange.ORDER_BY_START);
 
-        List<TimeRange> combinedBusyTimes = new ArrayList<TimeRange>();
+        List<TimeRange> combinedBusyTimes = new ArrayList<>();
 
-        int i = 0;
         int start = -1;
-        int end;
-        while (i < busyTimes.size()) {
+        for (int i = 0; i < busyTimes.size(); i++) {
             if (start == -1) {
                 start = busyTimes.get(i).start(); // set Start of TimeRange
             }
             
             if (i == busyTimes.size()-1){ // On the last TimeRange
-                end = busyTimes.get(i).end();
+                int end = busyTimes.get(i).end();
                 combinedBusyTimes.add(TimeRange.fromStartEnd(start, end, true));
                 break;
             }
 
-            if (busyTimes.get(i).end() > busyTimes.get(i+1).start()){ // combine with next TimeRange
-                i++;
-                continue;
-            } else {
-                end = busyTimes.get(i).end();
+            if (busyTimes.get(i).end() < busyTimes.get(i+1).start()){
+                int end = busyTimes.get(i).end();
                 combinedBusyTimes.add(TimeRange.fromStartEnd(start, end, true));
                 start = -1; // reset start for a new TimeRange to add
-                i++;
             }
         }
 
@@ -92,8 +113,8 @@ public final class FindMeetingQuery {
   }
 
 
-  public List<TimeRange> removeOverlap(TimeRange avaliable, TimeRange booked) {
-        List<TimeRange> cleansed = new ArrayList<TimeRange>();
+  public List<TimeRange> removeOverlap(TimeRange available, TimeRange booked) {
+        List<TimeRange> cleansed = new ArrayList<>();
     // Case 1: |-a-|
     //           |-b-|
     //
@@ -102,13 +123,13 @@ public final class FindMeetingQuery {
     //
     // Case 3: |----a----|
     //            |-b-|
-        if (avaliable.contains(booked.start()) && !avaliable.contains(booked.end())) { // case 1
-            cleansed.add(avaliable.fromStartEnd(avaliable.start(), booked.start(), false));
-        } else if (!avaliable.contains(booked.start()) && avaliable.contains(booked.end())) { // case 2
-            cleansed.add(TimeRange.fromStartEnd(booked.end(), avaliable.end(), false));
+        if (available.contains(booked.start()) && !available.contains(booked.end())) { // case 1
+            cleansed.add(available.fromStartEnd(available.start(), booked.start(), false));
+        } else if (!available.contains(booked.start()) && available.contains(booked.end())) { // case 2
+            cleansed.add(TimeRange.fromStartEnd(booked.end(), available.end(), false));
         } else {
-            cleansed.add(TimeRange.fromStartEnd(avaliable.start(), booked.start(), false));
-            cleansed.add(TimeRange.fromStartEnd(booked.end(), avaliable.end(), false));
+            cleansed.add(TimeRange.fromStartEnd(available.start(), booked.start(), false));
+            cleansed.add(TimeRange.fromStartEnd(booked.end() - 1, available.end(), false));
         }
         return cleansed;
   }
