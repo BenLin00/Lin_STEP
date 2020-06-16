@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Iterator;
 
     // first iterate through and combine events that overlap
     // subtract combined events calendar from whole day
@@ -28,6 +29,7 @@ public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
         List<TimeRange> availableRanges = new ArrayList<>();
         availableRanges.add(TimeRange.WHOLE_DAY);
+
         Collection<TimeRange> bookedRanges = combinedMandatoryRanges(events, request);
 
         /* The bookedRanges is already sorted, so iterating from the earliest bookedRange, 
@@ -41,37 +43,19 @@ public final class FindMeetingQuery {
             // }
         }
 
-        System.out.println("availableRanges:" + availableRanges);
-        System.out.println("requestduration:" + request.getDuration());
-
-
         // remove available TimeRanges too small
-        // still broken
-        System.out.println("please enter the for loop"); 
-        for (int i = 0; i > availableRanges.size(); i++) {
-            System.out.print("for loop entered"); // this isn't printing so it must not be entering the for loop idk why
+        List<TimeRange> toRemove = new ArrayList<>();
+        
+        for (int i = 0; i < availableRanges.size(); i++) {
+            System.out.print("for loop entered");
 
             TimeRange available = availableRanges.get(i);            
-            
-            System.out.println("availableduration:" + available.duration());
-            System.out.println("requestDuration:" + request.getDuration());
-
             if (available.duration() < request.getDuration()) {
-                availableRanges.remove(i);
-                i--;
+                toRemove.add(available);
             }
         }
 
-        // for (TimeRange available : availableRanges) {
-        //     System.out.println("availableduration:" + available.duration());
-
-        //     if (available.duration() < request.getDuration()) {
-        //         System.out.println("removing" + available);
-        //         availableRanges.remove(available);
-        //     }
-        // }
-
-        System.out.println("after the for loop");
+        availableRanges.removeAll(toRemove);
         
         return availableRanges;
   }
