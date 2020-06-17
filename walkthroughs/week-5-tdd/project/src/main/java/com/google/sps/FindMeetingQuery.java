@@ -28,17 +28,22 @@ import java.util.Iterator;
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
         List<TimeRange> mandatoryAvailableRanges = new ArrayList<>();
-        List<TimeRange> availableRangesOptionalAttendeesConsidered = new ArrayList<>();
+        List<TimeRange> optionalAttendeesConsideredRanges = new ArrayList<>();
 
         /* try to remove the timeRanges optional attendees can't make it to. If there's nothing left, ignore the optional attendees*/
         mandatoryAvailableRanges = availableRanges(events, request, false);
-        availableRangesOptionalAttendeesConsidered = availableRanges(events, request, true);
+        optionalAttendeesConsideredRanges = availableRanges(events, request, true);
 
-        if (availableRangesOptionalAttendeesConsidered.isEmpty()){
+        System.out.println("mandatoryRanges: " + mandatoryAvailableRanges);
+        System.out.println("optionalRange: " + optionalAttendeesConsideredRanges);
+
+        if (request.getAttendees().isEmpty() ) { // only optional Attendees
+            return optionalAttendeesConsideredRanges;
+        } else if (optionalAttendeesConsideredRanges.isEmpty() && !request.getOptionalAttendees().isEmpty()) { // consider optional Attendees but considering optionalAttendees create no options
             return mandatoryAvailableRanges;
+        } else {
+            return optionalAttendeesConsideredRanges; // last case: there are optionalAttendees to consider and we can consider optionalAttendees + still have avaliabilities
         }
-
-        return availableRangesOptionalAttendeesConsidered;
   }
 
   public List<TimeRange> availableRanges(Collection<Event> events, MeetingRequest request, boolean considerOptionalAttendees) {
@@ -81,9 +86,9 @@ public final class FindMeetingQuery {
 *returns set of TimeRanges formed by all events that have mandatory attendees from the request with no overlap
 * if mandatoryAttendees is true, we return the combinedRanges of mandatoryAttendees. else, return combinedRanges of optionalAttendees
 */
-  public Collection<TimeRange> combinedRanges(Collection<Event> events, MeetingRequest request, boolean mandatoryAttendees) {
+  public Collection<TimeRange> combinedRanges(Collection<Event> events, MeetingRequest request, boolean considerOptionalAttendees) {
         List<TimeRange> busyTimes = new ArrayList<>();
-        if (mandatoryAttendees) {
+        if (!considerOptionalAttendees) {   //switch this to not use the ! operator
             for (Event event : events) {
                 if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) ) { //events with mandatory attendees only
                     busyTimes.add(event.getWhen());
