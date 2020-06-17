@@ -35,20 +35,16 @@ public final class FindMeetingQuery {
         /* The bookedRanges is already sorted, so iterating from the earliest bookedRange, 
             each subsequent bookedRange will have a conflict with the latest avaliable range, as we start with the whole day */
         for (TimeRange booked : bookedRanges) {
-            TimeRange lastInavailable = availableRanges.get(availableRanges.size()-1);
-            // if (lastInavailable.overlaps(booked)){ //if statement unneeded
-                List<TimeRange> newLastavailable = removeOverlap(lastInavailable, booked);
-                availableRanges.remove(lastInavailable);
-                availableRanges.addAll(newLastavailable);
-            // }
+            TimeRange lastInAvailable = availableRanges.get(availableRanges.size()-1);
+            List<TimeRange> newLastavailable = removeOverlap(lastInAvailable, booked);
+            availableRanges.remove(lastInAvailable);
+            availableRanges.addAll(newLastavailable);
         }
 
         // remove available TimeRanges too small
         List<TimeRange> toRemove = new ArrayList<>();
         
         for (int i = 0; i < availableRanges.size(); i++) {
-            System.out.print("for loop entered");
-
             TimeRange available = availableRanges.get(i);            
             if (available.duration() < request.getDuration()) {
                 toRemove.add(available);
