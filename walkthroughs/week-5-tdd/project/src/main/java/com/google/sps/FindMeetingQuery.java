@@ -15,9 +15,103 @@
 package com.google.sps;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Iterator;
+
+    // first iterate through and combine events that overlap
+    // subtract combined events calendar from whole day
+    // remove time ranges that are too short 
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    throw new UnsupportedOperationException("TODO: Implement this method.");
+        List<TimeRange> availableRanges = new ArrayList<>();
+        availableRanges.add(TimeRange.WHOLE_DAY);
+
+        Collection<TimeRange> bookedRanges = combinedMandatoryRanges(events, request);
+
+        /* The bookedRanges is already sorted, so iterating from the earliest bookedRange, 
+            each subsequent bookedRange will have a conflict with the latest avaliable range, as we start with the whole day */
+        for (TimeRange booked : bookedRanges) {
+            TimeRange lastInAvailable = availableRanges.get(availableRanges.size()-1);
+            List<TimeRange> newLastavailable = removeOverlap(lastInAvailable, booked);
+            availableRanges.remove(lastInAvailable);
+            availableRanges.addAll(newLastavailable);
+        }
+
+        // remove available TimeRanges too small
+        List<TimeRange> toRemove = new ArrayList<>();
+        
+        for (int i = 0; i < availableRanges.size(); i++) {
+            TimeRange available = availableRanges.get(i);            
+            if (available.duration() < request.getDuration()) {
+                toRemove.add(available);
+            }
+        }
+
+        availableRanges.removeAll(toRemove);
+        
+        return availableRanges;
   }
+
+/** 
+*returns set of TimeRanges formed by all events that have mandatory attendees from the request with no overlap
+*/
+  public Collection<TimeRange> combinedMandatoryRanges(Collection<Event> events, MeetingRequest request) {
+        List<TimeRange> busyTimes = new ArrayList<>();
+        for (Event event : events) {
+            if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) ) { //events with mandatory attendees only
+                busyTimes.add(event.getWhen());
+            }
+        }
+        Collections.sort(busyTimes, TimeRange.ORDER_BY_START);
+
+        List<TimeRange> combinedBusyTimes = new ArrayList<>();
+
+        int start = -1;
+        for (int i = 0; i < busyTimes.size(); i++) {
+            if (start == -1) {
+                start = busyTimes.get(i).start(); // set Start of TimeRange
+            }
+            
+            if (i == busyTimes.size()-1){ // On the last TimeRange
+                int end = busyTimes.get(i).end();
+                combinedBusyTimes.add(TimeRange.fromStartEnd(start, end, true));
+                break;
+            }
+
+            if (busyTimes.get(i).end() < busyTimes.get(i+1).start()){
+                int end = busyTimes.get(i).end();
+                combinedBusyTimes.add(TimeRange.fromStartEnd(start, end, true));
+                start = -1; // reset start for a new TimeRange to add
+            }
+        }
+
+        return combinedBusyTimes;
+  }
+
+
+  public List<TimeRange> removeOverlap(TimeRange available, TimeRange booked) {
+        List<TimeRange> cleansed = new ArrayList<>();
+    // Case 1: |-a-|
+    //           |-b-|
+    //
+    // Case 2:    |-a-|
+    //         |-b-|
+    //
+    // Case 3: |----a----|
+    //            |-b-|
+        if (available.contains(booked.start()) && !available.contains(booked.end())) { // case 1
+            cleansed.add(available.fromStartEnd(available.start(), booked.start(), false));
+        } else if (!available.contains(booked.start()) && available.contains(booked.end())) { // case 2
+            cleansed.add(TimeRange.fromStartEnd(booked.end(), available.end(), false));
+        } else {
+            cleansed.add(TimeRange.fromStartEnd(available.start(), booked.start(), false));
+            cleansed.add(TimeRange.fromStartEnd(booked.end() - 1, available.end(), false));
+        }
+        return cleansed;
+  }
+
 }
