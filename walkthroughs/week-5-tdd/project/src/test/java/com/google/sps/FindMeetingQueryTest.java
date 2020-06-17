@@ -447,7 +447,7 @@ public final class FindMeetingQueryTest {
     Collection<TimeRange> expected =
         Arrays.asList(TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TimeRange.END_OF_DAY, true));
 
-    Collection<TimeRange> actual = query.combinedMandatoryRanges(events, request);
+    Collection<TimeRange> actual = query.combinedRanges(events, request, true);
 
     Assert.assertEquals(expected, actual);
   }

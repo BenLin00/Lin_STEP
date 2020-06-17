@@ -27,10 +27,31 @@ import java.util.Iterator;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+        List<TimeRange> mandatoryAvailableRanges = new ArrayList<>();
+        List<TimeRange> availableRangesOptionalAttendeesConsidered = new ArrayList<>();
+
+        /* try to remove the timeRanges optional attendees can't make it to. If there's nothing left, ignore the optional attendees*/
+        mandatoryAvailableRanges = availableRanges(events, request, false);
+        availableRangesOptionalAttendeesConsidered = availableRanges(events, request, true);
+
+        if (availableRangesOptionalAttendeesConsidered.isEmpty()){
+            return mandatoryAvailableRanges;
+        }
+
+        return availableRangesOptionalAttendeesConsidered;
+  }
+
+  public List<TimeRange> availableRanges(Collection<Event> events, MeetingRequest request, boolean considerOptionalAttendees) {
         List<TimeRange> availableRanges = new ArrayList<>();
         availableRanges.add(TimeRange.WHOLE_DAY);
 
-        Collection<TimeRange> bookedRanges = combinedMandatoryRanges(events, request);
+        Collection<TimeRange> bookedRanges;
+
+        if (considerOptionalAttendees) {
+            bookedRanges = combinedRanges(events, request, true);
+        } else {
+            bookedRanges = combinedRanges(events, request, false);
+        }
 
         /* The bookedRanges is already sorted, so iterating from the earliest bookedRange, 
             each subsequent bookedRange will have a conflict with the latest avaliable range, as we start with the whole day */
@@ -43,29 +64,40 @@ public final class FindMeetingQuery {
 
         // remove available TimeRanges too small
         List<TimeRange> toRemove = new ArrayList<>();
-        
         for (int i = 0; i < availableRanges.size(); i++) {
             TimeRange available = availableRanges.get(i);            
             if (available.duration() < request.getDuration()) {
                 toRemove.add(available);
             }
         }
-
         availableRanges.removeAll(toRemove);
         
         return availableRanges;
+
   }
+
 
 /** 
 *returns set of TimeRanges formed by all events that have mandatory attendees from the request with no overlap
+* if mandatoryAttendees is true, we return the combinedRanges of mandatoryAttendees. else, return combinedRanges of optionalAttendees
 */
-  public Collection<TimeRange> combinedMandatoryRanges(Collection<Event> events, MeetingRequest request) {
+  public Collection<TimeRange> combinedRanges(Collection<Event> events, MeetingRequest request, boolean mandatoryAttendees) {
         List<TimeRange> busyTimes = new ArrayList<>();
-        for (Event event : events) {
-            if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) ) { //events with mandatory attendees only
-                busyTimes.add(event.getWhen());
+        if (mandatoryAttendees) {
+            for (Event event : events) {
+                if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) ) { //events with mandatory attendees only
+                    busyTimes.add(event.getWhen());
+                }
+            }
+        } else { // combined events including optional attendees
+            for (Event event : events) {
+                if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) || //events with mandatory attendees 
+                    !Collections.disjoint(event.getAttendees(), request.getOptionalAttendees())) { // or events with optional attendees
+                    busyTimes.add(event.getWhen());
+                }
             }
         }
+
         Collections.sort(busyTimes, TimeRange.ORDER_BY_START);
 
         List<TimeRange> combinedBusyTimes = new ArrayList<>();
