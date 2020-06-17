@@ -92,7 +92,9 @@ public final class FindMeetingQuery {
         return combinedBusyTimes;
   }
 
-
+/**
+    avaliable and booked will always overlap when this function is called
+*/
   public List<TimeRange> removeOverlap(TimeRange available, TimeRange booked) {
         List<TimeRange> cleansed = new ArrayList<>();
     // Case 1: |-a-|
