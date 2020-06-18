@@ -88,16 +88,16 @@ public final class FindMeetingQuery {
 */
   public Collection<TimeRange> combinedRanges(Collection<Event> events, MeetingRequest request, boolean considerOptionalAttendees) {
         List<TimeRange> busyTimes = new ArrayList<>();
-        if (!considerOptionalAttendees) {   //switch this to not use the ! operator
+        if (considerOptionalAttendees) { 
             for (Event event : events) {
-                if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) ) { //events with mandatory attendees only
+                if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) || //events with mandatory attendees 
+                    !Collections.disjoint(event.getAttendees(), request.getOptionalAttendees())) { // or events with optional attendees
                     busyTimes.add(event.getWhen());
                 }
             }
         } else { // combined events including optional attendees
             for (Event event : events) {
-                if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) || //events with mandatory attendees 
-                    !Collections.disjoint(event.getAttendees(), request.getOptionalAttendees())) { // or events with optional attendees
+                if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) ) { //events with mandatory attendees only
                     busyTimes.add(event.getWhen());
                 }
             }
