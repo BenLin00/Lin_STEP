@@ -336,7 +336,7 @@ public final class FindMeetingQueryTest {
 
     // Tutorial 3rd test
   @Test
-  public void optionalAttendeejustEnoughRoom() {
+  public void ignoreOptionalAttendeejustEnoughRoom() {
     // Have one person, but make it so that there is just enough room at one point in the day to
     // have the meeting. Optional attendee will be ignored in the only time frame.
     //
@@ -349,7 +349,7 @@ public final class FindMeetingQueryTest {
             Arrays.asList(PERSON_A)),
         new Event("Event 2", TimeRange.fromStartEnd(TIME_0900AM, TimeRange.END_OF_DAY, true),
             Arrays.asList(PERSON_A)),
-        new Event("Event 3", TimeRange.fromStartEnd(TIME_0900AM, TimeRange.getTimeInMinutes(8, 45), false),
+        new Event("Event 3", TimeRange.fromStartEnd(TIME_0800AM, TimeRange.getTimeInMinutes(8, 45), false),
             Arrays.asList(PERSON_B)));
 
     MeetingRequest request = new MeetingRequest(Arrays.asList(PERSON_A), DURATION_30_MINUTES);
