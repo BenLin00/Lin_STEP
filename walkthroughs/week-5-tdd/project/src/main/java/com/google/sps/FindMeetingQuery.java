@@ -108,20 +108,28 @@ public final class FindMeetingQuery {
         List<TimeRange> combinedBusyTimes = new ArrayList<>();
 
         int start = -1;
+        int latestEnd = 0;
+        int end = 0;
         for (int i = 0; i < busyTimes.size(); i++) {
             if (start == -1) {
                 start = busyTimes.get(i).start(); // set Start of TimeRange
             }
-            
+
+            end = busyTimes.get(i).end();
+            latestEnd = Math.max(end, latestEnd);
+
             if (i == busyTimes.size()-1){ // On the last TimeRange
-                int end = busyTimes.get(i).end();
-                combinedBusyTimes.add(TimeRange.fromStartEnd(start, end, true));
+                end = busyTimes.get(i).end();
+                combinedBusyTimes.add(TimeRange.fromStartEnd(start, latestEnd, true));
                 break;
             }
 
-            if (busyTimes.get(i).end() < busyTimes.get(i+1).start()){
-                int end = busyTimes.get(i).end();
-                combinedBusyTimes.add(TimeRange.fromStartEnd(start, end, true));
+            if (latestEnd > busyTimes.get(i+1).end()) {
+                continue;
+            }
+
+            if (latestEnd < busyTimes.get(i+1).start()){
+                combinedBusyTimes.add(TimeRange.fromStartEnd(start, latestEnd, true));
                 start = -1; // reset start for a new TimeRange to add
             }
         }
