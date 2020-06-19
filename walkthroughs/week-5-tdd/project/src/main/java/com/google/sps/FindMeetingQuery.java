@@ -34,9 +34,6 @@ public final class FindMeetingQuery {
         mandatoryAvailableRanges = availableRanges(events, request, false);
         optionalAttendeesConsideredRanges = availableRanges(events, request, true);
 
-        System.out.println("mandatoryRanges: " + mandatoryAvailableRanges);
-        System.out.println("optionalRange: " + optionalAttendeesConsideredRanges);
-
         if (request.getAttendees().isEmpty() ) { // only optional Attendees
             return optionalAttendeesConsideredRanges;
         } else if (optionalAttendeesConsideredRanges.isEmpty() && !request.getOptionalAttendees().isEmpty()) { // consider optional Attendees but considering optionalAttendees create no options
