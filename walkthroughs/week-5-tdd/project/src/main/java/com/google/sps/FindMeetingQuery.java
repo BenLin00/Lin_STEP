@@ -17,6 +17,7 @@ package com.google.sps;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Iterator;
@@ -27,19 +28,17 @@ import java.util.Iterator;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-        List<TimeRange> mandatoryAvailableRanges = new ArrayList<>();
         List<TimeRange> optionalAttendeesConsideredRanges = new ArrayList<>();
 
         /* try to remove the timeRanges optional attendees can't make it to. If there's nothing left, ignore the optional attendees*/
-        mandatoryAvailableRanges = availableRanges(events, request, false);
         optionalAttendeesConsideredRanges = availableRanges(events, request, true);
 
         if (request.getAttendees().isEmpty() ) { // only optional Attendees
             return optionalAttendeesConsideredRanges;
         } else if (optionalAttendeesConsideredRanges.isEmpty() && !request.getOptionalAttendees().isEmpty()) { // consider optional Attendees but considering optionalAttendees create no options
-            return mandatoryAvailableRanges;
+            return availableRanges(events, request, false); // only mandatory attendees considered. optional attendees ignored
         } else {
-            return optionalAttendeesConsideredRanges; // last case: there are optionalAttendees to consider and we can consider optionalAttendees + still have avaliabilities
+            return optionalAttendeesConsideredRanges; // last case: there are optionalAttendees to consider and we can consider optionalAttendees + still have availabilities
         }
   }
 
@@ -47,16 +46,10 @@ public final class FindMeetingQuery {
         List<TimeRange> availableRanges = new ArrayList<>();
         availableRanges.add(TimeRange.WHOLE_DAY);
 
-        Collection<TimeRange> bookedRanges;
-
-        if (considerOptionalAttendees) {
-            bookedRanges = combinedRanges(events, request, true);
-        } else {
-            bookedRanges = combinedRanges(events, request, false);
-        }
+        Collection<TimeRange> bookedRanges = combinedRanges(events, request, considerOptionalAttendees);
 
         /* The bookedRanges is already sorted, so iterating from the earliest bookedRange, 
-            each subsequent bookedRange will have a conflict with the latest avaliable range, as we start with the whole day */
+            each subsequent bookedRange will have a conflict with the latest available range, as we start with the whole day */
         for (TimeRange booked : bookedRanges) {
             TimeRange lastInAvailable = availableRanges.get(availableRanges.size()-1);
             List<TimeRange> newLastavailable = removeOverlap(lastInAvailable, booked);
@@ -85,18 +78,15 @@ public final class FindMeetingQuery {
 */
   public Collection<TimeRange> combinedRanges(Collection<Event> events, MeetingRequest request, boolean considerOptionalAttendees) {
         List<TimeRange> busyTimes = new ArrayList<>();
-        if (considerOptionalAttendees) { 
-            for (Event event : events) {
-                if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) || //events with mandatory attendees 
-                    !Collections.disjoint(event.getAttendees(), request.getOptionalAttendees())) { // or events with optional attendees
+        Set<String> attendees = new HashSet<>(request.getAttendees());
+
+        if (considerOptionalAttendees) {
+            attendees.addAll(request.getOptionalAttendees());
+        }
+        
+        for (Event event : events) {
+            if (!Collections.disjoint(event.getAttendees(), attendees) ) { //events with request attendees only
                     busyTimes.add(event.getWhen());
-                }
-            }
-        } else { // combined events including optional attendees
-            for (Event event : events) {
-                if (!Collections.disjoint(event.getAttendees(), request.getAttendees()) ) { //events with mandatory attendees only
-                    busyTimes.add(event.getWhen());
-                }
             }
         }
 
@@ -117,7 +107,7 @@ public final class FindMeetingQuery {
 
             if (i == busyTimes.size()-1){ // On the last TimeRange
                 end = busyTimes.get(i).end();
-                combinedBusyTimes.add(TimeRange.fromStartEnd(start, latestEnd, true));
+                combinedBusyTimes.add(TimeRange.fromStartEnd(start, latestEnd, false));
                 break;
             }
 
@@ -126,7 +116,7 @@ public final class FindMeetingQuery {
             }
 
             if (latestEnd < busyTimes.get(i+1).start()){
-                combinedBusyTimes.add(TimeRange.fromStartEnd(start, latestEnd, true));
+                combinedBusyTimes.add(TimeRange.fromStartEnd(start, latestEnd, false));
                 start = -1; // reset start for a new TimeRange to add
             }
         }
@@ -135,7 +125,7 @@ public final class FindMeetingQuery {
   }
 
 /**
-    avaliable and booked will always overlap when this function is called
+    available and booked will always overlap when this function is called
 */
   public List<TimeRange> removeOverlap(TimeRange available, TimeRange booked) {
         List<TimeRange> cleansed = new ArrayList<>();
@@ -153,7 +143,7 @@ public final class FindMeetingQuery {
             cleansed.add(TimeRange.fromStartEnd(booked.end(), available.end(), false));
         } else {
             cleansed.add(TimeRange.fromStartEnd(available.start(), booked.start(), false));
-            cleansed.add(TimeRange.fromStartEnd(booked.end() - 1, available.end(), false));
+            cleansed.add(TimeRange.fromStartEnd(booked.end(), available.end(), false));
         }
         return cleansed;
   }
