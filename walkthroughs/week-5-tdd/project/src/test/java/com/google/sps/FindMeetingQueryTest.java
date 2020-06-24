@@ -336,7 +336,7 @@ public final class FindMeetingQueryTest {
 
     // Tutorial 3rd test
   @Test
-  public void optionalAttendeejustEnoughRoom() {
+  public void ignoreOptionalAttendeejustEnoughRoom() {
     // Have one person, but make it so that there is just enough room at one point in the day to
     // have the meeting. Optional attendee will be ignored in the only time frame.
     //
@@ -349,7 +349,7 @@ public final class FindMeetingQueryTest {
             Arrays.asList(PERSON_A)),
         new Event("Event 2", TimeRange.fromStartEnd(TIME_0900AM, TimeRange.END_OF_DAY, true),
             Arrays.asList(PERSON_A)),
-        new Event("Event 3", TimeRange.fromStartEnd(TIME_0900AM, TimeRange.getTimeInMinutes(8, 45), false),
+        new Event("Event 3", TimeRange.fromStartEnd(TIME_0800AM, TimeRange.getTimeInMinutes(8, 45), false),
             Arrays.asList(PERSON_B)));
 
     MeetingRequest request = new MeetingRequest(Arrays.asList(PERSON_A), DURATION_30_MINUTES);
@@ -374,7 +374,7 @@ public final class FindMeetingQueryTest {
     Collection<Event> events = Arrays.asList(
         new Event("Event 1", TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0800AM, false),
             Arrays.asList(PERSON_A)),
-        new Event("Event 2", TimeRange.fromStartEnd(TIME_0800AM, TIME_0900AM, true),
+        new Event("Event 2", TimeRange.fromStartEnd(TIME_0800AM, TIME_0900AM, false),
             Arrays.asList(PERSON_B)),
         new Event("Event 3", TimeRange.fromStartEnd(TIME_1100AM, TimeRange.END_OF_DAY, false),
             Arrays.asList(PERSON_A)));
@@ -447,7 +447,7 @@ public final class FindMeetingQueryTest {
     Collection<TimeRange> expected =
         Arrays.asList(TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TimeRange.END_OF_DAY, true));
 
-    Collection<TimeRange> actual = query.combinedMandatoryRanges(events, request);
+    Collection<TimeRange> actual = query.combinedRanges(events, request, true);
 
     Assert.assertEquals(expected, actual);
   }
@@ -462,6 +462,28 @@ public final class FindMeetingQueryTest {
     List<TimeRange> expected = new ArrayList<TimeRange>();
         expected.add(TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0830AM, false));
     List<TimeRange> actual = query.removeOverlap(a, b);
+
+    Assert.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testCombinedRanges() {
+    // Case 1: |---a---|
+    //            |-a-|
+
+    Collection<Event> events = Arrays.asList(
+        new Event("Event 1", TimeRange.fromStartDuration(TIME_0800AM, DURATION_2_HOUR),
+            Arrays.asList(PERSON_A)),
+        new Event("Event 2", TimeRange.fromStartDuration(TIME_0900AM, DURATION_30_MINUTES),
+            Arrays.asList(PERSON_A)));
+
+    MeetingRequest request =
+        new MeetingRequest(Arrays.asList(PERSON_A), DURATION_2_HOUR);
+            
+    Collection<TimeRange> expected = new ArrayList<TimeRange>();
+        expected.add(TimeRange.fromStartDuration(TIME_0800AM, DURATION_2_HOUR));
+
+    Collection<TimeRange> actual = query.combinedRanges(events, request, true);
 
     Assert.assertEquals(expected, actual);
   }
