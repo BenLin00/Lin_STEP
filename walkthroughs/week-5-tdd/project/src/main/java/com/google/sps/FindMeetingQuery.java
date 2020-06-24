@@ -34,7 +34,7 @@ public final class FindMeetingQuery {
         if (!optionalAttendeesConsideredRanges.isEmpty()) { // if optional Attendees can attend
             return optionalAttendeesConsideredRanges;
         } else if (request.getAttendees().isEmpty()) { // no mandatory attendees requested
-            return optionalAttendeesConsideredRanges; // return empty list
+            return Collections.emptyList(); // return empty list
         } else {
             return availableRanges(events, request, false); // return mandatory attendees ranges only, ignoring optional attendees
         }
