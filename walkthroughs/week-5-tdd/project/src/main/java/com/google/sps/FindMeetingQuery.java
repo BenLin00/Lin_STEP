@@ -28,18 +28,17 @@ import java.util.Iterator;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-        List<TimeRange> optionalAttendeesConsideredRanges = new ArrayList<>();
-
         /* try to remove the timeRanges optional attendees can't make it to. If there's nothing left, ignore the optional attendees*/
-        optionalAttendeesConsideredRanges = availableRanges(events, request, true);
+        List<TimeRange> optionalAttendeesConsideredRanges = availableRanges(events, request, /* considerOptionalAttendees= */ true);
 
-        if (request.getAttendees().isEmpty() ) { // only optional Attendees
+        if (!optionalAttendeesConsideredRanges.isEmpty()) { // if optional Attendees can attend
             return optionalAttendeesConsideredRanges;
-        } else if (optionalAttendeesConsideredRanges.isEmpty() && !request.getOptionalAttendees().isEmpty()) { // consider optional Attendees but considering optionalAttendees create no options
-            return availableRanges(events, request, false); // only mandatory attendees considered. optional attendees ignored
+        } else if (request.getAttendees().isEmpty()) { // no mandatory attendees requested
+            return optionalAttendeesConsideredRanges; // return empty list
         } else {
-            return optionalAttendeesConsideredRanges; // last case: there are optionalAttendees to consider and we can consider optionalAttendees + still have availabilities
+            return availableRanges(events, request, false); // return mandatory attendees ranges only, ignoring optional attendees
         }
+
   }
 
   public List<TimeRange> availableRanges(Collection<Event> events, MeetingRequest request, boolean considerOptionalAttendees) {
