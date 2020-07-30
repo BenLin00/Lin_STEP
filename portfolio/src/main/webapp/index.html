@@ -30,7 +30,7 @@
         
 <!-- left column containing linkedin profile card -->
         <div class="column left">
-        Connect with me on LinkedIn!
+        Connect with me on LinkedIn! whoawhoawhoa beep boop why this no work pls pls work
         <div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="vertical" data-theme="light" data-vanity="benlin-umd"><a class="LI-simple-link" href='https://www.linkedin.com/in/benlin-umd?trk=profile-badge'>Benjamin (Ben) Lin</a></div>
         <br>
         Some of my good vibe music!~
@@ -80,6 +80,43 @@
         </div>
 <!-- close row -->
       </div>
+
+
+        <form id="question-identity">
+            <canvas id="cropCanvas" width="0" height="0" style="border:1px solid #000000;"></canvas>
+            <br>
+
+            <div class="row">
+                    <input class="validate" type="text" id="question-name" name="question-name" placeholder="Question Name">
+                    <label for="question-name" class="active">Question Name</label>
+            </div>
+            <div class="row">
+                    <input class="validate" type="number" id="question-points" name="question-points" placeholder="Question Total Points" ><br>
+                    <label for="question-points" class="active">Question Points</label>
+            </div>
+            
+            Question Type
+            <p>
+            <label>
+                <input type="radio" id="multiple-choice" name="question-type" value="multiple-choice" checked />
+                <span>Multiple Choice</span>
+            </label>
+            </p>
+            <p>
+            <label>
+                <input type="radio" id="short-answer" name="question-type" value="short-answer"/>
+                <span>Short Answer</span>
+            </label>
+            </p>
+            <p>
+            <label>
+                <input type="radio" id="other" name="question-type" value="other" />
+                <span>Other</span>
+            </label>
+            </p>
+
+            <input type="button" value="Add Question" onclick="submitBoxButton()">
+        </form>
 
   </body>
 </html>
